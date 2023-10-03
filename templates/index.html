@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <title>Поиск плитки карты Яндекс</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: 200px;
+        }
+        input[type="submit"] {
+            margin-top: 10px;
+        }
+        #map {
+            width: 500px;
+            height: 500px;
+            margin-bottom: 20px;
+        }
+        #tile-coordinates {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+    </head>
+    <body>
+        <h1>Поиск плитки карты Яндекс</h1>
+
+        <form id="search-form">
+        <label for="latitude">Широта:</label>
+        <input type="text" id="latitude" name="latitude">
+        <label for="longitude">Долгота:</label>
+        <input type="text" id="longitude" name="longitude">
+        <label for="zoom">Зум:</label>
+        <input type="text" id="zoom" name="zoom">
+        <input type="submit" value="Поиск">
+        </form>
+
+        <div id="map"></div>
+
+        <div id="tile-coordinates"></div>
+
+        <script>
+            const form = document.getElementById('search-form');
+            const mapContainer = document.getElementById('map');
+            const tileCoordinatesContainer = document.getElementById('tile-coordinates');
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                // Получаем значения введенных данных
+                const latitude = parseFloat(document.getElementById('latitude').value);
+                const longitude = parseFloat(document.getElementById('longitude').value);
+                const zoom = parseInt(document.getElementById('zoom').value);
+
+                // Проверяем введенные данные
+                if (isNaN(latitude) || isNaN(longitude) || isNaN(zoom)) {
+                    alert('Пожалуйста, введите числовые значения.');
+                return;
+                }
+
+                // Рассчитываем координаты X и Y для плитки
+                const maxCoordinate = Math.pow(2, zoom);
+
+                const xTile = Math.floor((longitude + 180) / 360 * Math.pow(2, zoom));
+                const yTile = Math.floor((1 - Math.log(Math.tan(latitude * Math.PI / 180) + 1 / Math.cos(latitude * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
+
+                // Формируем URL для плитки карты Яндекс
+                const url = `https://core-carparks-renderer-lots.maps.yandex.net/maps-rdr-carparks/tiles?l=carparks&x=${xTile}&y=${yTile}&z=${zoom}&scale=1&lang=ru_RU`;
+
+                // Отображаем плитку карты
+                mapContainer.innerHTML = `<img src="${url}" alt='плитка не найдена' width="500" height="500">`;
+
+                // Отображаем координаты плитки
+                tileCoordinatesContainer.textContent = `Координаты плитки: X=${xTile}, Y=${yTile}`;
+            });
+        </script>
+    </body>
+</html>
